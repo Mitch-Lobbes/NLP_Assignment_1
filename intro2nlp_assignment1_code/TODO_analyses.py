@@ -44,7 +44,7 @@ class LinguisticAnalysis:
         self.word_class_table = self.create_word_class_table(most_frequent_tags=n10_pos_tags)
 
         # N-Grams (1.5 points)
-        # TODO: Is This The Correct Way, Since All Frequencies = 1
+        # TODO: Is This The Correct Way? Currently using the lemma's of the tokens
         bi_gram_frequencies, tri_gram_frequencies = Counter(), Counter()
         for sentence in self._documents.sents:
             bi_gram_frequencies.update(self.n_grams(sentence=sentence, n=2))
@@ -56,11 +56,11 @@ class LinguisticAnalysis:
         # Named Entity Recognition (1 point)
         # TODO: How to find wrongly recognized entities
         self.n_named_entities = len(self._documents.ents)
-        for ent in self._documents.ents:
-            print(ent.text, ent.label_)
+        # for ent in self._documents.ents:
+        #     print(ent.text, ent.label_)
 
     def n_grams(self, sentence, n):
-        return [sentence[i:i+n] for i in range(len(sentence)-n+1)]
+        return [sentence[i:i+n].lemma_ for i in range(len(sentence)-n+1)]
 
     def _get_word_frequencies(self):
         word_frequencies = Counter()
