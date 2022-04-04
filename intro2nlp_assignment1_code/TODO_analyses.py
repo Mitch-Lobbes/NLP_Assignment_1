@@ -28,6 +28,7 @@ class LinguisticAnalysis:
 
     def _part_a(self):
 
+        # TODO: Maybe we need to remove symbols from the documents
         # TODO: Define what we are going to classify as a 'word', for now I went with everything except punctuations
         word_frequencies = self._get_word_frequencies()
 
@@ -52,6 +53,22 @@ class LinguisticAnalysis:
 
         # Lemmatization (1 point)
         # TODO
+        for sentence in self._documents.sents:
+            print(sentence)
+            print("---------------------------------------------")
+            for token in sentence:
+                print(token.text, token.lemma_)
+
+        # Russian Presidential spokesperson Dmitry Peskov echoed Putin , saying the troops are \" a threat .
+        # Lemma: say
+        # Inflection: saying
+
+        # That said , I plan to investigate this question ( among others ) further [ in ] the next couple of years .
+        # Lemma: say
+        # Inflection: said
+
+
+
 
         # Named Entity Recognition (1 point)
         # TODO: How to find wrongly recognized entities
