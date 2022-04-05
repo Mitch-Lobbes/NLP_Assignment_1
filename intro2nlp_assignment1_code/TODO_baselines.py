@@ -5,6 +5,7 @@
 # Frequency baseline: determines the class based on a frequency threshold
 
 from model.data_loader import DataLoader
+import torch
 
 # Each baseline returns predictions for the test data. The length and frequency baselines determine a threshold using the development data.
 
@@ -18,20 +19,20 @@ def majority_baseline(train_sentences, train_labels, testinput, testlabels):
     for instance in testinput:
         tokens = instance.split(" ")
         instance_predictions = [majority_class for t in tokens]
-        predictions.append(instance, instance_predictions)
+        predictions.append((instance, instance_predictions))
 
     # TODO: calculate accuracy for the test input
     # ...
-    return accuracy, predictions
+    return 5, predictions
 
 
 
 
 
 if __name__ == '__main__':
-    train_path = "data/preprocessed/train"
-    dev_path = "data/preprocessed/dev"
-    test_path = "data/preprocessed/test"
+    train_path = "/Users/mitchlobbes/AI/NLT/intro2nlp_assignment1_code/data/preprocessed/train/"
+    dev_path = "/Users/mitchlobbes/AI/NLT/intro2nlp_assignment1_code/data/preprocessed/val/"
+    test_path = "/Users/mitchlobbes/AI/NLT/intro2nlp_assignment1_code/data/preprocessed/test/"
 
     # Note: this loads all instances into memory. If you work with bigger files in the future, use an iterator instead.
 
@@ -50,8 +51,8 @@ if __name__ == '__main__':
     with open(test_path + "sentences.txt") as testfile:
         testinput = testfile.readlines()
 
-    with open("test_path + labels.txt") as test_labelfile:
+    with open(test_path + "labels.txt") as test_label_file:
         testlabels = test_label_file.readlines()
-    majority_accuracy, majority_predictions = majority_baseline(train_sentences, train_labels, testinput)
+    majority_accuracy, majority_predictions = majority_baseline(train_sentences, train_labels, testinput, testlabels)
 
     # TODO: output the predictions in a suitable way so that you can evaluate them
