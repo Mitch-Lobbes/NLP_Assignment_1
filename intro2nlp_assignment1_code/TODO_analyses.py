@@ -16,7 +16,7 @@ class LinguisticAnalysis:
 
     def __init__(self, filename: str):
         self._nlp = spacy.load('en_core_web_sm')
-        self._documents = self._nlp(open(filename, "r").read())
+        self._documents = self._nlp(open(filename, "r",  encoding='utf-8').read())
 
         # Tokenization Variables
         self._n_tokens = 0
@@ -206,10 +206,13 @@ class LinguisticAnalysis:
             print("-------------------------------")
             if idx == 4:
                 break
-
-
-doc_name = "data/preprocessed/train/sentences.txt"
-part_A = LinguisticAnalysis(filename=doc_name)
+#doc_name_wind_forward = "D:/Users/Paola/Documents/University/Master/NLP/Assignment 1/NLP_Assignment_1/intro2nlp_assignment1_code/data/preprocessed/train/sentences.txt"
+doc_name_wind_double = "D:\\Users\\Paola\\Documents\\University\\Master\\NLP\\Assignment_1\\NLP_Assignment_1\\intro2nlp_assignment1_code\\data\\preprocessed\\train\\sentences.txt"
+#doc_name_wind_onedouble = 'D:\\Users\Paola\Documents\University\Master\NLP\Assignment 1\NLP_Assignment_1\intro2nlp_assignment1_code\data\preprocessed\train\sentences.txt'
+#doc_name_wind_r = r'D:\Users\Paola\Documents\University\Master\NLP\Assignment 1\NLP_Assignment_1\intro2nlp_assignment1_code\data\preprocessed\train\sentences.txt'
+#doc_name_wind = "NLP_Assignment_1\intro2nlp_assignment1_code\data\preprocessed\train\sentences.txt"
+#doc_name = ".\data\preprocessed\train\sentences.txt"
+part_A = LinguisticAnalysis(filename= doc_name_wind_double)
 
 
 
