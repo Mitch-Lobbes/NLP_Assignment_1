@@ -24,7 +24,7 @@ class Net(nn.Module):
         We define an recurrent network that predicts the tags for each token in the sentence. The components
         required are:
 
-        - an embedding layer: this layer maps each index in range(params.vocab_size) to a params.embedding_dim vector
+        - an embedding layer: this layer maps each index in range(params.vocab_size) to a params.embedding_dim vector #??????????????????????????????????
         - lstm: applying the LSTM on the sequential input returns an output for each token in the sentence
         - fc: a fully connected layer that converts the LSTM output for each token to a distribution over NER tags
 

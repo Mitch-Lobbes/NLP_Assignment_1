@@ -9,7 +9,7 @@ import os
 parser = argparse.ArgumentParser()
 parser.add_argument('--min_count_word', default=1, help="Minimum count for words in the dataset", type=int)
 parser.add_argument('--min_count_tag', default=1, help="Minimum count for tags in the dataset", type=int)
-parser.add_argument('--data_dir', default='data/preprocessed', help="Directory containing the dataset")
+parser.add_argument('--data_dir', default='NLP_Assignment_1\intro2nlp_assignment1_code\\data\\preprocessed', help="Directory containing the dataset")
 
 # Hyper parameters for the vocab
 PAD_WORD = '<pad>'
@@ -24,7 +24,7 @@ def save_vocab_to_txt_file(vocab, txt_path):
         vocab: (iterable object) yields token
         txt_path: (stirng) path to vocab file
     """
-    with open(txt_path, "w") as f:
+    with open(txt_path, "w", encoding='utf-8') as f:
         for token in vocab:
             f.write(token + '\n')
             
@@ -51,7 +51,7 @@ def update_vocab(txt_path, vocab):
     Returns:
         dataset_size: (int) number of elements in the dataset
     """
-    with open(txt_path) as f:
+    with open(txt_path, encoding='utf-8') as f:
         for i, line in enumerate(f):
             vocab.update(line.strip().split(' '))
 
@@ -64,17 +64,18 @@ if __name__ == '__main__':
     # Build word vocab with train and test datasets
     print("Building word vocabulary...")
     words = Counter()
-    size_train_sentences = update_vocab(os.path.join(args.data_dir, 'train/sentences.txt'), words)
-    size_dev_sentences = update_vocab(os.path.join(args.data_dir, 'val/sentences.txt'), words)
-    size_test_sentences = update_vocab(os.path.join(args.data_dir, 'test/sentences.txt'), words)
+    size_train_sentences = update_vocab(os.path.join(args.data_dir, 'train\\sentences.txt'), words)
+    #print("size_train_sentences looks like:\n", size_train_sentences)
+    size_dev_sentences = update_vocab(os.path.join(args.data_dir, 'val\\sentences.txt'), words)
+    size_test_sentences = update_vocab(os.path.join(args.data_dir, 'test\\sentences.txt'), words)
     print("- done.")
 
     # Build tag vocab with train and test datasets
     print("Building tag vocabulary...")
     tags = Counter()
-    size_train_tags = update_vocab(os.path.join(args.data_dir, 'train/labels.txt'), tags)
-    size_dev_tags = update_vocab(os.path.join(args.data_dir, 'val/labels.txt'), tags)
-    size_test_tags = update_vocab(os.path.join(args.data_dir, 'test/labels.txt'), tags)
+    size_train_tags = update_vocab(os.path.join(args.data_dir, 'train\\labels.txt'), tags)
+    size_dev_tags = update_vocab(os.path.join(args.data_dir, 'val\\labels.txt'), tags)
+    size_test_tags = update_vocab(os.path.join(args.data_dir, 'test\\labels.txt'), tags)
     print("- done.")
 
     # Assert same number of examples in datasets

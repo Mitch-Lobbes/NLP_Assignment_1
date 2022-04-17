@@ -32,7 +32,7 @@ class DataLoader(object):
         # loading vocab (we require this to map words to their indices)
         vocab_path = os.path.join(data_dir, 'words.txt')
         self.vocab = {}
-        with open(vocab_path) as f:
+        with open(vocab_path, encoding='utf-8') as f:
             for i, l in enumerate(f.read().splitlines()):
                 self.vocab[l] = i
         
@@ -64,7 +64,7 @@ class DataLoader(object):
         sentences = []
         labels = []
 
-        with open(sentences_file) as f:
+        with open(sentences_file, encoding='utf-8') as f:
             for sentence in f.read().splitlines():
                 # replace each token by its index if it is in vocab
                 # else use index of UNK_WORD

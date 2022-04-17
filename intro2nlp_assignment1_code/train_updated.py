@@ -18,7 +18,7 @@ from evaluate import evaluate
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_dir', default='NLP_Assignment_1\\intro2nlp_assignment1_code\\data\\preprocessed',
                     help="Directory containing the dataset")
-parser.add_argument('--model_dir', default='NLP_Assignment_1\\intro2nlp_assignment1_code\\experiments\\base_model', 
+parser.add_argument('--model_dir', default='NLP_Assignment_1\\intro2nlp_assignment1_code\\experiments\\base_model',
                     help="Directory containing params.json")
 parser.add_argument('--restore_file', default=None,
                     help="Optional, name of the file in --model_dir containing weights to reload before \
@@ -125,7 +125,7 @@ def train_and_evaluate(model, train_data, val_data, optimizer, loss_fn, metrics,
         val_data_iterator = data_loader.data_iterator(
             val_data, params, shuffle=False)
         val_metrics = evaluate(
-            model, loss_fn, val_data_iterator, metrics, params, num_steps)
+            model, loss_fn, val_data_iterator, metrics, num_steps)
 
         val_acc = val_metrics['accuracy']
         is_best = val_acc >= best_val_acc
