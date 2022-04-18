@@ -12,30 +12,8 @@ pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 5000)
 
-wiki_news_train = pd.read_csv("/Users/mitchlobbes/AI/NLT/intro2nlp_assignment1_code/data/original/english/WikiNews_Train.tsv", sep="\t", header=None)
-labeled_0 = len(wiki_news_train[wiki_news_train[9] == 0])
-labeled_1 = len(wiki_news_train[wiki_news_train[9] == 1])
-print(f"Number of instances labeled with 0: {labeled_0}")
-print(f"Number of instances labeled with 1: {labeled_1}")
+wiki_news_train = pd.read_csv("D:\\Users\\Paola\\Documents\\University\\Master\\NLP\\Assignment_1\\NLP_Assignment_1\\intro2nlp_assignment1_code\\data\\original\\english\\WikiNews_Train.tsv", sep="\t", header=None, encoding='utf-8')
 
-min_prob_label = wiki_news_train[10].min()
-max_prob_label = wiki_news_train[10].max()
-median_prob_label = wiki_news_train[10].median()
-mean_prob_label = wiki_news_train[10].mean()
-std_prob_label = wiki_news_train[10].std()
-print(f"Min : {min_prob_label}")
-print(f"Max : {max_prob_label}")
-print(f"Median : {median_prob_label}")
-print(f"Mean : {mean_prob_label}")
-print(f"Std : {std_prob_label}")
-
-inst_more_than_1_token = wiki_news_train[wiki_news_train[4].str.split(" ").str.len() > 1]
-len_token_series = wiki_news_train[4].str.split(" ").str.len()
-
-print(f"Number of instances consisting of more than one token: {len(inst_more_than_1_token)}")
-print(f"Maximum number of tokens for an instance: {len_token_series.max()}")
-
-raise SystemExit
 
 # Each baseline returns predictions for the test data. The length and frequency baselines determine a threshold using the development data.
 
@@ -43,8 +21,9 @@ def majority_baseline(train_sentences, train_labels, testinput, testlabels):
     predictions = []
 
     # TODO: determine the majority class based on the training data
-    # ...
-    majority_class = "X"
+    testinput.split('').count("N")
+
+    majority_class = "N"
     predictions = []
     for instance in testinput:
         tokens = instance.split(" ")
@@ -57,27 +36,27 @@ def majority_baseline(train_sentences, train_labels, testinput, testlabels):
 
 
 if __name__ == '__main__':
-    train_path = "/Users/mitchlobbes/AI/NLT/intro2nlp_assignment1_code/data/preprocessed/train/"
-    dev_path = "/Users/mitchlobbes/AI/NLT/intro2nlp_assignment1_code/data/preprocessed/val/"
-    test_path = "/Users/mitchlobbes/AI/NLT/intro2nlp_assignment1_code/data/preprocessed/test/"
+    train_path = "D:\\Users\\Paola\\Documents\\University\\Master\\NLP\\Assignment_1\\NLP_Assignment_1\\intro2nlp_assignment1_code\\data\\preprocessed\\train\\"
+    dev_path =  "D:\\Users\\Paola\\Documents\\University\\Master\\NLP\\Assignment_1\\NLP_Assignment_1\\intro2nlp_assignment1_code\\data\\preprocessed\\val\\"
+    test_path =  "D:\\Users\\Paola\\Documents\\University\\Master\\NLP\\Assignment_1\\NLP_Assignment_1\\intro2nlp_assignment1_code\\data\\preprocessed\\test\\"
 
     # Note: this loads all instances into memory. If you work with bigger files in the future, use an iterator instead.
-    with open(train_path + "sentences.txt") as sent_file:
+    with open(train_path + "sentences.txt", encoding='utf-8') as sent_file:
         train_sentences = sent_file.readlines()
 
-    with open(train_path + "labels.txt") as label_file:
+    with open(train_path + "labels.txt", encoding='utf-8') as label_file:
         train_labels = label_file.readlines()
 
-    with open(dev_path + "sentences.txt") as dev_file:
+    with open(dev_path + "sentences.txt", encoding='utf-8') as dev_file:
         dev_sentences = dev_file.readlines()
 
-    with open(train_path + "labels.txt") as dev_label_file:
+    with open(train_path + "labels.txt", encoding='utf-8') as dev_label_file:
         dev_labels = dev_label_file.readlines()
 
-    with open(test_path + "sentences.txt") as testfile:
+    with open(test_path + "sentences.txt", encoding='utf-8') as testfile:
         testinput = testfile.readlines()
 
-    with open(test_path + "labels.txt") as test_label_file:
+    with open(test_path + "labels.txt", encoding='utf-8') as test_label_file:
         testlabels = test_label_file.readlines()
 
 
