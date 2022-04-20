@@ -1,65 +1,192 @@
-# Implement four baselines for the task.
-# Majority baseline: always assigns the majority class of the training data
-# Random baseline: randomly assigns one of the classes. Make sure to set a random seed and average the accuracy over 100 runs.
-# Length baseline: determines the class based on a length threshold
-# Frequency baseline: determines the class based on a frequency threshold
-
-from model.data_loader import DataLoader
-import torch
-
-import pandas as pd
-pd.set_option('display.max_rows', 500)
-pd.set_option('display.max_columns', 500)
-pd.set_option('display.width', 5000)
-
-wiki_news_train = pd.read_csv("D:\\Users\\Paola\\Documents\\University\\Master\\NLP\\Assignment_1\\NLP_Assignment_1\\intro2nlp_assignment1_code\\data\\original\\english\\WikiNews_Train.tsv", sep="\t", header=None, encoding='utf-8')
+import os
+from collections import Counter
+from sklearn.metrics import accuracy_score
+import random
+from wordfreq import word_frequency
+import csv
 
 
-# Each baseline returns predictions for the test data. The length and frequency baselines determine a threshold using the development data.
+class Baseline:
 
-def majority_baseline(train_sentences, train_labels, testinput, testlabels):
-    predictions = []
+    def __init__(self):
+        self._directory = os.getcwd()
+        self._train_path = f"{self._directory}/data/preprocessed/train/"
+        self._dev_path = f"{self._directory}/data/preprocessed/val/"
+        self._test_path = f"{self._directory}/data/preprocessed/test/"
+        self._data_dict = {}
+        self.predictions_dict = {}
+        self._majority = None
 
-    # TODO: determine the majority class based on the training data
-    testinput.split('').count("N")
+        self._load_data()
 
-    majority_class = "N"
-    predictions = []
-    for instance in testinput:
-        tokens = instance.split(" ")
-        instance_predictions = [majority_class for t in tokens]
-        predictions.append((instance, instance_predictions))
+        self._run()
 
-    # TODO: calculate accuracy for the test input
-    # ...
-    return None, predictions
+    def _load_data(self):
+
+        with open(self._train_path + "sentences.txt") as sent_file:
+            self._data_dict["train_sentences"] = sent_file.readlines()
+
+        with open(self._train_path + "labels.txt") as label_file:
+            self._data_dict["train_labels"] = label_file.readlines()
+
+        with open(self._dev_path + "sentences.txt") as dev_file:
+            self._data_dict["dev_sentences"] = dev_file.readlines()
+
+        with open(self._dev_path + "labels.txt") as dev_label_file:
+            self._data_dict["dev_labels"] = dev_label_file.readlines()
+
+        with open(self._test_path + "sentences.txt") as testfile:
+            self._data_dict["test_sentences"] = testfile.readlines()
+
+        with open(self._test_path + "labels.txt") as test_label_file:
+            self._data_dict["test_labels"] = test_label_file.readlines()
+
+    def _run(self):
+
+        self._get_majority_class()
+        m1_ac = self._majority_baseline(data=self._data_dict["test_sentences"], labels=self._data_dict["test_labels"])
+        print(f"Majority Accuracy Test: {m1_ac}")
+        m2_ac = self._majority_baseline(data=self._data_dict["dev_sentences"], labels=self._data_dict["dev_labels"])
+        print(f"Majority Accuracy Dev: {m2_ac}")
+        print("-----------------------------------------")
+        r1_ac = self._random_baseline(data=self._data_dict["test_sentences"], labels=self._data_dict["test_labels"])
+        print(f"Random Accuracy Test: {r1_ac}")
+        r2_ac = self._random_baseline(data=self._data_dict["dev_sentences"], labels=self._data_dict["dev_labels"])
+        print(f"Random Accuracy Dev: {r2_ac}")
+        print("-----------------------------------------")
+        print(f"Length Accuracy Test")
+        for i in range(16):
+            self._length_baseline(data=self._data_dict["test_sentences"],
+                                  labels=self._data_dict["test_labels"], threshold=i)
+        print("-------------------------")
+        print(f"Length Accuracy Dev")
+        for i in range(16):
+            self._length_baseline(data=self._data_dict["dev_sentences"],
+                                  labels=self._data_dict["dev_labels"], threshold=i)
+
+        print("-------------------------")
+        print(f"Freq Accuracy Dev")
+        for i in [0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001]:
+            self._frequency_baseline(data=self._data_dict["dev_sentences"], labels=self._data_dict["dev_labels"],
+                                     threshold=i)
+
+        print("-------------------------")
+        print(f"Freq Accuracy Test")
+        for i in [0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001]:
+            self._frequency_baseline(data=self._data_dict["test_sentences"], labels=self._data_dict["test_labels"],
+                                     threshold=i)
+
+        self._length_baseline(data=self._data_dict["test_sentences"],
+                              labels=self._data_dict["test_labels"], threshold=0)
+        self._frequency_baseline(data=self._data_dict["dev_sentences"], labels=self._data_dict["dev_labels"],
+                                 threshold=1e-05)
+        self._majority_baseline(data=self._data_dict["test_sentences"], labels=self._data_dict["test_labels"])
+        self._random_baseline(data=self._data_dict["test_sentences"], labels=self._data_dict["test_labels"])
+
+        self._save_performance_file(dict_key='length')
+        self._save_performance_file(dict_key='frequency')
+        self._save_performance_file(dict_key='majority')
+        self._save_performance_file(dict_key='random')
+
+    def _save_performance_file(self, dict_key: str):
+        flattened_predictions = self.predictions_dict[dict_key]
+
+        test_words = self._data_dict['test_sentences']
+        test_words = [i.strip() for i in test_words]
+
+        test_labels = self._data_dict['test_labels']
+        test_labels = [i.strip() for i in test_labels]
+
+        flattened_words = [word for line in test_words for word in line.split()]
+        flattened_labels = [word for line in test_labels for word in line.split()]
+
+        combined_list = [list(a) for a in zip(flattened_words, flattened_labels, flattened_predictions)]
+
+        with open(f'experiments/base_model/baselines{dict_key}.tsv', 'wt') as outfile:
+            tsvwriter = csv.writer(outfile, delimiter='\t')
+            tsvwriter.writerows(combined_list)
+
+    def _get_majority_class(self):
+
+        label_counter = Counter()
+        train_labels = [sentence.strip("\n").split(" ") for sentence in self._data_dict["train_labels"]]
+
+        for sentence in train_labels:
+            label_counter.update(label for label in sentence)
+
+        self._majority = label_counter.most_common(1)[0][0]
+
+    def _majority_baseline(self, data: list, labels: list):
+        predictions = []
+        formatted_labels = []
+
+        labels = [sentence.strip("\n").split(" ") for sentence in labels]
+        for label in labels:
+            formatted_labels.extend(label)
+
+        for label in formatted_labels:
+            predictions.append(self._majority)
+
+        self.predictions_dict['majority'] = predictions
+        return accuracy_score(formatted_labels, predictions, normalize=True), predictions
+
+    def _random_baseline(self, data: list, labels: list):
+        predictions = []
+        formatted_labels = []
+
+        labels = [sentence.strip("\n").split(" ") for sentence in labels]
+        for label in labels:
+            formatted_labels.extend(label)
+
+        for label in formatted_labels:
+            predictions.append(random.choice(["C", "N"]))
+
+        self.predictions_dict['random'] = predictions
+        return accuracy_score(formatted_labels, predictions, normalize=True)
+
+    def _length_baseline(self, data: list, labels: list, threshold: int):
+
+        predictions = []
+        formatted_labels = []
+        formatted_data = []
+
+        data = [sentence.strip("\n").split(" ") for sentence in data]
+        labels = [sentence.strip("\n").split(" ") for sentence in labels]
+
+        for i in range(len(labels)):
+            formatted_labels.extend(labels[i])
+            formatted_data.extend(data[i])
+
+        for token in formatted_data:
+            length = len(token)
+            assignment = "C" if length <= threshold else "N"
+            predictions.append(assignment)
+
+        self.predictions_dict['length'] = predictions
+        accuracy = accuracy_score(formatted_labels, predictions, normalize=True)
+        print(f"{accuracy}, threshold: {threshold}")
+
+    def _frequency_baseline(self, data: list, labels: list, threshold: float):
+
+        predictions = []
+        formatted_labels = []
+        formatted_data = []
+
+        data = [sentence.strip("\n").split(" ") for sentence in data]
+        labels = [sentence.strip("\n").split(" ") for sentence in labels]
+
+        for i in range(len(labels)):
+            formatted_labels.extend(labels[i])
+            formatted_data.extend(data[i])
+
+        for token in formatted_data:
+            freq = word_frequency(token, 'en')
+            assignment = "C" if freq <= threshold else "N"
+            predictions.append(assignment)
+
+        self.predictions_dict['frequency'] = predictions
+        accuracy = accuracy_score(formatted_labels, predictions, normalize=True)
+        print(f"{accuracy}, threshold: {threshold}")
 
 
-if __name__ == '__main__':
-    train_path = "D:\\Users\\Paola\\Documents\\University\\Master\\NLP\\Assignment_1\\NLP_Assignment_1\\intro2nlp_assignment1_code\\data\\preprocessed\\train\\"
-    dev_path =  "D:\\Users\\Paola\\Documents\\University\\Master\\NLP\\Assignment_1\\NLP_Assignment_1\\intro2nlp_assignment1_code\\data\\preprocessed\\val\\"
-    test_path =  "D:\\Users\\Paola\\Documents\\University\\Master\\NLP\\Assignment_1\\NLP_Assignment_1\\intro2nlp_assignment1_code\\data\\preprocessed\\test\\"
-
-    # Note: this loads all instances into memory. If you work with bigger files in the future, use an iterator instead.
-    with open(train_path + "sentences.txt", encoding='utf-8') as sent_file:
-        train_sentences = sent_file.readlines()
-
-    with open(train_path + "labels.txt", encoding='utf-8') as label_file:
-        train_labels = label_file.readlines()
-
-    with open(dev_path + "sentences.txt", encoding='utf-8') as dev_file:
-        dev_sentences = dev_file.readlines()
-
-    with open(train_path + "labels.txt", encoding='utf-8') as dev_label_file:
-        dev_labels = dev_label_file.readlines()
-
-    with open(test_path + "sentences.txt", encoding='utf-8') as testfile:
-        testinput = testfile.readlines()
-
-    with open(test_path + "labels.txt", encoding='utf-8') as test_label_file:
-        testlabels = test_label_file.readlines()
-
-
-    majority_accuracy, majority_predictions = majority_baseline(train_sentences, train_labels, testinput, testlabels)
-
-    # TODO: output the predictions in a suitable way so that you can evaluate them
+baseline_1 = Baseline()
