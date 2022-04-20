@@ -15,14 +15,6 @@ from model.data_loader import DataLoader
 from evaluate import evaluate
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--data_dir', default='NLP_Assignment_1\\intro2nlp_assignment1_code\\data\\preprocessed',
-                    help="Directory containing the dataset")
-parser.add_argument('--model_dir', default='NLP_Assignment_1\\intro2nlp_assignment1_code\\experiments\\base_model', 
-                    help="Directory containing params.json")
-parser.add_argument('--restore_file', default=None,
-                    help="Optional, name of the file in --model_dir containing weights to reload before \
-                    training")  # 'best' or 'train'
 
 
 def train(model, optimizer, loss_fn, data_iterator, metrics, params, num_steps):
@@ -86,7 +78,8 @@ def train(model, optimizer, loss_fn, data_iterator, metrics, params, num_steps):
     logging.info("- Train metrics: " + metrics_string)
 
 
-def train_and_evaluate(model, train_data, val_data, optimizer, loss_fn, metrics, params, model_dir, restore_file=None):
+def train_and_evaluate(model, train_data, val_data, optimizer, loss_fn, metrics, params, model_dir, args, data_loader,
+                       restore_file=None):
     """Train the model and evaluate every epoch.
 
     Args:
@@ -99,6 +92,8 @@ def train_and_evaluate(model, train_data, val_data, optimizer, loss_fn, metrics,
         params: (Params) hyperparameters
         model_dir: (string) directory containing config, weights and log
         restore_file: (string) optional- name of file to restore from (without its extension .pth.tar)
+        args: object
+        data_loader: object
     """
     # reload weights from restore_file if specified
     if restore_file is not None:
@@ -125,7 +120,7 @@ def train_and_evaluate(model, train_data, val_data, optimizer, loss_fn, metrics,
         val_data_iterator = data_loader.data_iterator(
             val_data, params, shuffle=False)
         val_metrics = evaluate(
-            model, loss_fn, val_data_iterator, metrics, params, num_steps)
+            model, loss_fn, val_data_iterator, metrics, num_steps)
 
         val_acc = val_metrics['accuracy']
         is_best = val_acc >= best_val_acc
@@ -153,9 +148,18 @@ def train_and_evaluate(model, train_data, val_data, optimizer, loss_fn, metrics,
         utils.save_dict_to_json(val_metrics, last_json_path)
 
 
-if __name__ == '__main__':
+def start():
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data_dir', default='data/preprocessed',
+                        help="Directory containing the dataset")
+    parser.add_argument('--model_dir', default='experiments/base_model',
+                        help="Directory containing params.json")
+    parser.add_argument('--restore_file', default=None,
+                        help="Optional, name of the file in --model_dir containing weights to reload before \
+                        training")  # 'best' or 'train'
     # Load the parameters from json file
+
     args = parser.parse_args()
     json_path = os.path.join(args.model_dir, 'params.json')
     assert os.path.isfile(
@@ -199,4 +203,4 @@ if __name__ == '__main__':
     # Train the model
     logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
     train_and_evaluate(model, train_data, val_data, optimizer, loss_fn, metrics, params, args.model_dir,
-                       args.restore_file)
+                       args, data_loader, args.restore_file)
