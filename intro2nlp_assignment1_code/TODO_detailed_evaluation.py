@@ -3,19 +3,17 @@
 
 import pandas as pd
 from sklearn.metrics import f1_score, precision_recall_fscore_support
-from sklearn.metrics import f1_score
 import json
 import os
-import subprocess
-
+import plotly.express as px
 import train
 import evaluate
 import utils
 import torch
-import torch.optim as optim
 import logging
 from model.data_loader import DataLoader
 import model.net as net
+import build_vocab
 
 
 class Detailed_Eval:
@@ -63,25 +61,24 @@ class Experiments:
     def __init__(self, epochs_values, filepath):
         self.f1_list = []
         self.filepath = filepath
-        self.epochs_values = epochs_values
+        self.lr_values = epochs_values
         self.epoch_experiment()
 
-    def change_num_epochs(self, epoch: int):
+    def change_lr(self, epoch: int):
 
         with open(self.filepath, 'r') as file:
             json_data = json.load(file)
             for item in enumerate(json_data):
-                if item[1] == 'num_epochs':
+                if item[1] == 'learning_rate':
                     json_data[item[1]] = epoch
         with open(self.filepath, 'w') as file:
             json.dump(json_data, file, indent=2)
 
-    # def build_vocab(self):
-    #    subprocess.run('python D:/build_vocab.py')
+    def build_vocab(self):
+        build_vocab.start()
 
     def train_lstm(self):
         train.start()
-        # subprocess.run('python D:/train.py')
 
     def evaluate_lstm(self, index):
 
@@ -141,16 +138,18 @@ class Experiments:
 
     def epoch_experiment(self):
 
-        for i in range(len(self.epochs_values)):
+        self.build_vocab()
+        for i in range(len(self.lr_values)):
             # changing the epoch parameter
-            self.change_num_epochs(self.epochs_values[i])
+            self.change_lr(self.lr_values[i])
             self.train_lstm()
             self.evaluate_lstm(i)
 
-        for i in range(5):
-            self.f1_calculation(f"experiments/base_model/model_output{i}.tsv")
+        for i in range(len(self.lr_values)):
+            self.f1_calculation(f"experiments/base_model/model_output_{i}.tsv")
 
         print(f'f1 results are: {self.f1_list}')
+        self.plot_hyperparameter()
 
     def f1_calculation(self, filepath):
 
@@ -163,6 +162,17 @@ class Experiments:
                                                           average='weighted')
         self.f1_list.append(round(weighted_avg_f1[2], 2))
 
+    def plot_hyperparameter(self):
+
+        df = pd.DataFrame(dict(
+            learning_rate=self.lr_values,
+            F1_score=self.f1_list
+        ))
+        fig = px.line(df, x="learning_rate", y="F1_score", title='F1 score based on hyperparamter "learning rate"')
+        fig.write_image(f"experiments/base_model/learning_rate_f1.png")
+        fig.show()
+
+
 
 # Run this part for exercise 12 to get the table
 # !!! The file-paths need to be in the correct order --> "Random", "Majority", "Length", "Frequency", "LSTM" !!!
@@ -173,6 +183,7 @@ table12_output = ['experiments/base_model/baselinesrandom.tsv', 'experiments/bas
 ex12 = Detailed_Eval(table12_output)
 
 # Run this part for Exercise 14
-epochs = [1, 3, 5, 7, 10]
+
+lr_values = [0.001, 0.01, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
 json_path = "experiments/base_model/params.json"
-x = Experiments(epochs, json_path)
+x = Experiments(lr_values, json_path)
