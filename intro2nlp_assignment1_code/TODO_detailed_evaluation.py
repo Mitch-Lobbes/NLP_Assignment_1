@@ -26,7 +26,7 @@ class Detailed_Eval:
         self.table = pd.DataFrame(columns=["Model",
                                            "Class_N Precision",
                                            "Class_N Recall",
-                                           "Clgit ass_N F1",
+                                           "Class_N F1",
                                            "Class_C Precision",
                                            "Class_C Recall",
                                            "Class_C F1",
@@ -50,18 +50,12 @@ class Detailed_Eval:
             self.table.loc[len(self.table.index)] = [self.model_list[filepath[0]], round(N_metrics[0], 2),
                                                      round(N_metrics[1], 2), round(N_metrics[2], 2),
                                                      round(C_metrics[0], 2), round(C_metrics[1], 2),
-                                                     round(C_metrics[2], 2), round(weighted_avg_f1[0], 2)]
+                                                     round(C_metrics[2], 2), round(weighted_avg_f1[2], 2)]
 
     def print_table(self):
         print("Detailed Evaluation (2.5 points)")
         print(self.table.to_string())
         print("\n")
-
-
-# !!! The file-paths need to be in the correct order --> "Random", "Majority", "Length", "Frequency", "LSTM" !!!
-
-# lstm_output = ['experiments/base_model/model_output.tsv']
-# ex12 = Detailed_Eval(lstm_output)
 
 
 class Experiments:
@@ -138,7 +132,7 @@ class Experiments:
         # reverse the vocab and tag dictionary to be able to map back from ids to words and tags
         id2word = {v: k for k, v in data_loader.vocab.items()}
         tags = {v: k for k, v in data_loader.tag_map.items()}
-        outfile = args.model_dir + f"/model_output{index}.tsv"
+        outfile = args.model_dir + f"/model_output_{index}.tsv"
         test_metrics = evaluate.evaluate_and_output(model, loss_fn, test_data_iterator, metrics, num_steps, id2word,
                                                     tags,
                                                     outfile)
@@ -167,62 +161,18 @@ class Experiments:
 
         weighted_avg_f1 = precision_recall_fscore_support(file_output["Gold"], file_output["Prediction"],
                                                           average='weighted')
-        self.f1_list.append(round(weighted_avg_f1[2],2))
+        self.f1_list.append(round(weighted_avg_f1[2], 2))
 
 
+# Run this part for exercise 12 to get the table
+# !!! The file-paths need to be in the correct order --> "Random", "Majority", "Length", "Frequency", "LSTM" !!!
+
+table12_output = ['experiments/base_model/baselinesrandom.tsv', 'experiments/base_model/baselinesmajority.tsv',
+                  'experiments/base_model/baselineslength.tsv', 'experiments/base_model/baselinesfrequency.tsv',
+                  'experiments/base_model/model_original_output.tsv']
+ex12 = Detailed_Eval(table12_output)
+
+# Run this part for Exercise 14
 epochs = [1, 3, 5, 7, 10]
 json_path = "experiments/base_model/params.json"
 x = Experiments(epochs, json_path)
-
-# for number_of_epochs in range(len(self.epochs_values)):
-#
-#
-#
-# # Load the parameters from json file
-# args = train_updated.parser.parse_args()
-# json_path = os.path.join(args.model_dir, 'params.json')
-# assert os.path.isfile(
-#     json_path), "No json configuration file found at {}".format(json_path)
-# params = utils.Params(json_path)
-#
-# # use GPU if available
-# params.cuda = torch.cuda.is_available()
-#
-# # Set the random seed for reproducible experiments
-# torch.manual_seed(230)
-# if params.cuda:
-#     torch.cuda.manual_seed(230)
-#
-# # Set the logger
-# utils.set_logger(os.path.join(args.model_dir, 'train.log'))
-#
-# # Create the input data pipeline
-# logging.info("Loading the datasets...")
-#
-# # load data
-# data_loader = DataLoader(args.data_dir, params)
-# data = data_loader.load_data(['train', 'val'], args.data_dir)
-# train_data = data['train']
-# val_data = data['val']
-#
-# # specify the train and val dataset sizes
-# params.train_size = train_data['size']
-# params.val_size = val_data['size']
-#
-# logging.info("- done.")
-#
-# # Define the model and optimizer
-# model = net.Net(params).cuda() if params.cuda else net.Net(params)
-# optimizer = optim.Adam(model.parameters(), lr=params.learning_rate)
-#
-# # fetch loss function and metrics
-# loss_fn = net.loss_fn
-# metrics = net.metrics
-#
-# # Train the model
-# logging.info("Starting training for {} epoch(s)".format(params.num_epochs))
-# train_updated.train_and_evaluate(model, train_data, val_data, optimizer, loss_fn, metrics, params, args.model_dir,
-#                    args.restore_file)
-
-
-epochs = [5, 10, 15, 20, 25]
