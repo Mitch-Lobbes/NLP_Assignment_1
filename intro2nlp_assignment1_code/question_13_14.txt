@@ -8,13 +8,13 @@ into your reflection.
 
 The CWIG3G2 datasets from (Yi- mam et al., 2017b,a) for the complex word identification (CWI) shared task 2018, had a
 combined total of 34.879 data points. This data set was split into a training set containing 27299 instances,
-a test set with 4252 instances, and a dev set with 3328 instances. It would be intuitive for the large dataset of the
-shared task to display higher f1 scores in comparison to our model that was trained on significantly less instances.
-However, our weighted average
-of the LSTM displays a similar trend to that in the paper, indicated by the shared weighted f1-value (0.84). Similarly
-our frequency, length, and majority baselines are comparable to the baseline of 0.7106 found in the paper, suggesting
-once again similar findings.
-
+a test set with 4252 instances, and a dev set with 3328 instances. It would be intuitive for the larger dataset of the
+shared task to display higher f1 scores in comparison to our model, which was trained on significantly less number of
+instances in the training and testing set. However, our weighted average of the LSTM displays a similar trend to that
+in the paper, indicated by the shared weighted f1-value (0.84). Similarly our frequency, and majority baselines
+are comparable to the baseline of 0.7106 found in the paper, suggesting once again similar results. On the other hand,
+the random baseline produces the worst f1 score (0.55), while the length baseline actually performs quite well indicated
+by a f1 score of 0.82.
 
 
 Question 14:

@@ -1,4 +1,5 @@
 import os
+import pprint
 from collections import Counter
 from sklearn.metrics import accuracy_score
 import random
@@ -76,20 +77,23 @@ class Baseline:
             self._frequency_baseline(data=self._data_dict["test_sentences"], labels=self._data_dict["test_labels"],
                                      threshold=i)
 
-        self._length_baseline(data=self._data_dict["test_sentences"],
-                              labels=self._data_dict["test_labels"], threshold=0)
-        self._frequency_baseline(data=self._data_dict["dev_sentences"], labels=self._data_dict["dev_labels"],
-                                 threshold=1e-05)
-        self._majority_baseline(data=self._data_dict["test_sentences"], labels=self._data_dict["test_labels"])
+        # saving the predictions
         self._random_baseline(data=self._data_dict["test_sentences"], labels=self._data_dict["test_labels"])
 
+        self._get_majority_class()
+        self._majority_baseline(data=self._data_dict["test_sentences"], labels=self._data_dict["test_labels"])
+
+        self._length_baseline(data=self._data_dict["test_sentences"], labels=self._data_dict["test_labels"],
+                              threshold=8)
+        self._frequency_baseline(data=self._data_dict["test_sentences"], labels=self._data_dict["test_labels"],
+                                 threshold=1e-05)
+
+        self._save_performance_file(dict_key='random')
+        self._save_performance_file(dict_key='majority')
         self._save_performance_file(dict_key='length')
         self._save_performance_file(dict_key='frequency')
-        self._save_performance_file(dict_key='majority')
-        self._save_performance_file(dict_key='random')
 
     def _save_performance_file(self, dict_key: str):
-        flattened_predictions = self.predictions_dict[dict_key]
 
         test_words = self._data_dict['test_sentences']
         test_words = [i.strip() for i in test_words]
@@ -99,6 +103,7 @@ class Baseline:
 
         flattened_words = [word for line in test_words for word in line.split()]
         flattened_labels = [word for line in test_labels for word in line.split()]
+        flattened_predictions = self.predictions_dict[dict_key]
 
         combined_list = [list(a) for a in zip(flattened_words, flattened_labels, flattened_predictions)]
 
@@ -128,7 +133,8 @@ class Baseline:
             predictions.append(self._majority)
 
         self.predictions_dict['majority'] = predictions
-        return accuracy_score(formatted_labels, predictions, normalize=True), predictions
+        accuracy = accuracy_score(formatted_labels, predictions, normalize=True), predictions
+        print(f"{accuracy}")
 
     def _random_baseline(self, data: list, labels: list):
         predictions = []
@@ -142,7 +148,8 @@ class Baseline:
             predictions.append(random.choice(["C", "N"]))
 
         self.predictions_dict['random'] = predictions
-        return accuracy_score(formatted_labels, predictions, normalize=True)
+        accuracy = accuracy_score(formatted_labels, predictions, normalize=True)
+        print(f"{accuracy}")
 
     def _length_baseline(self, data: list, labels: list, threshold: int):
 
@@ -159,7 +166,7 @@ class Baseline:
 
         for token in formatted_data:
             length = len(token)
-            assignment = "C" if length <= threshold else "N"
+            assignment = "N" if length <= threshold else "C"
             predictions.append(assignment)
 
         self.predictions_dict['length'] = predictions
