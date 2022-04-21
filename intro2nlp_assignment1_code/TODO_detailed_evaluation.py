@@ -33,6 +33,7 @@ class Detailed_Eval:
         self.print_table()
 
     def update_table(self):
+
         for filepath in enumerate(self.filelist):
             file_output = pd.read_csv(filepath_or_buffer=filepath[1], encoding='latin-1',
                                       names=["Word", "Gold", "Prediction"],
@@ -62,7 +63,7 @@ class Experiments:
         self.f1_list = []
         self.filepath = filepath
         self.lr_values = epochs_values
-        self.epoch_experiment()
+        self.lr_experiment()
 
     def change_lr(self, epoch: int):
 
@@ -136,7 +137,7 @@ class Experiments:
         save_path = os.path.join(args.model_dir, "metrics_test_{}.json".format(args.restore_file))
         utils.save_dict_to_json(test_metrics, save_path)
 
-    def epoch_experiment(self):
+    def lr_experiment(self):
 
         self.build_vocab()
         for i in range(len(self.lr_values)):
