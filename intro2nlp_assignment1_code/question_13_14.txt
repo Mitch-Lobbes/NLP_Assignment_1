@@ -1,0 +1,43 @@
+Question 13:
+
+Compare the performance to the results in the shared task
+(https://aclanthology.org/W18-0507.pdf) and interpret the results in 3-5 sentences. Don’t
+forget to check the number of instances in the training and test data and integrate this
+into your reflection.
+
+
+The CWIG3G2 datasets from (Yi- mam et al., 2017b,a) for the complex word identification (CWI) shared task 2018, had a
+combined total of 34.879 data points. This data set was split into a training set containing 27299 instances,
+a test set with 4252 instances, and a dev set with 3328 instances. It would be intuitive for the large dataset of the
+shared task to display higher f1 scores in comparison to our model that was trained on significantly less instances.
+However, our weighted average
+of the LSTM displays a similar trend to that in the paper, indicated by the shared weighted f1-value (0.84). Similarly
+our frequency, length, and majority baselines are comparable to the baseline of 0.7106 found in the paper, suggesting
+once again similar findings.
+
+
+
+Question 14:
+
+Vary a hyperparameter of your choice and plot the F1-results (weighted average) for at
+least 5 different values. Examples for hyperparameters are embedding size, learning
+rate, number of epochs, random seed,
+
+Hyperparameter: Learning Rate
+Plot: filepath: "experiments/base_model/learning_rate_f1.png"
+
+Interpret the result (2-4 sentences):
+
+As can be seen in the figure, the f1 score decreases in respect to an increase in learning rate. The learning rate is
+a very important hyper-parameter of a neural network that influences how quickly the model adapts to the problem.
+Therefore, by increasing the learning rate to maladaptively high levels, the model may prematurely converge on a
+suboptimal solution which ultimatively leads to a lower precision and recall and thus, f1 score.
+
+Provide 3 examples for which the label changes when the hyperparameter changes:
+
+
+Learning rate value 1: 0.05, Learning rate value 2: 0.30
+
+1. Example 1: happen, Label at Value 1: N   ,Label at Value 2: C
+2. Example 2: After, Label at Value 1: N, Label at Value 2: C
+3. Example 3 authorities, Label at Value 1: C, Label at Value 2:N
