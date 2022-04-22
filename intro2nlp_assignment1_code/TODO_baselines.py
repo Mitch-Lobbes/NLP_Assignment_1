@@ -133,8 +133,7 @@ class Baseline:
             predictions.append(self._majority)
 
         self.predictions_dict['majority'] = predictions
-        accuracy = accuracy_score(formatted_labels, predictions, normalize=True), predictions
-        print(f"{accuracy}")
+        return accuracy_score(formatted_labels, predictions, normalize=True)
 
     def _random_baseline(self, data: list, labels: list):
         predictions = []
@@ -148,8 +147,7 @@ class Baseline:
             predictions.append(random.choice(["C", "N"]))
 
         self.predictions_dict['random'] = predictions
-        accuracy = accuracy_score(formatted_labels, predictions, normalize=True)
-        print(f"{accuracy}")
+        return accuracy_score(formatted_labels, predictions, normalize=True)
 
     def _length_baseline(self, data: list, labels: list, threshold: int):
 
