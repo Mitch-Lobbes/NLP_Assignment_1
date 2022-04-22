@@ -33,7 +33,6 @@ class Detailed_Eval:
         self.print_table()
 
     def update_table(self):
-
         for filepath in enumerate(self.filelist):
             file_output = pd.read_csv(filepath_or_buffer=filepath[1], encoding='latin-1',
                                       names=["Word", "Gold", "Prediction"],
@@ -174,17 +173,16 @@ class Experiments:
         fig.show()
 
 
-
 # Run this part for exercise 12 to get the table
 # !!! The file-paths need to be in the correct order --> "Random", "Majority", "Length", "Frequency", "LSTM" !!!
 
-table12_output = ['experiments/base_model/baselinesrandom.tsv', 'experiments/base_model/baselinesmajority.tsv',
+table12_input = ['experiments/base_model/baselinesrandom.tsv', 'experiments/base_model/baselinesmajority.tsv',
                   'experiments/base_model/baselineslength.tsv', 'experiments/base_model/baselinesfrequency.tsv',
                   'experiments/base_model/model_original_output.tsv']
-ex12 = Detailed_Eval(table12_output)
+ex12 = Detailed_Eval(table12_input)
+
 
 # Run this part for Exercise 14
-
 lr_values = [0.001, 0.01, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
 json_path = "experiments/base_model/params.json"
 x = Experiments(lr_values, json_path)
